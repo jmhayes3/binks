@@ -174,3 +174,5 @@ docs/docs_skeleton/yarn.lock
 
 db
 chroma_db_store
+
+poetry.lock
