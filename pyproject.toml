@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "binks"
+version = "0.1.0"
+description = "AI assistant for Discord servers."
+authors = ["jmhayes3 <22490346+jmhayes3@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+discord = "^2.3.1"
+langchain = "^0.0.250"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
