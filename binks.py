@@ -1,7 +1,7 @@
 import os
-
 import discord
 
+from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferWindowMemory
@@ -12,12 +12,6 @@ from langchain.prompts.chat import (
     MessagesPlaceholder
 )
 
-from dotenv import load_dotenv
-
-
-def generate_chain(params):
-    pass
-
 
 # Load env vars from .env file in project directory.
 load_dotenv()
@@ -25,15 +19,15 @@ load_dotenv()
 discord_token = os.getenv('DISCORD_TOKEN')
 openai_token = os.getenv('OPENAI_API_KEY')
 
-bot_client = discord.Client(intents=discord.Intents.all())
+bot = discord.Client(intents=discord.Intents.all())
 
 conversation_cache = {}
 
 
-@bot_client.event
+@bot.event
 async def on_message(msg):
     # Don't respond to self or we'll end up in an infinite loop.
-    if msg.author == bot_client.user:
+    if msg.author == bot.user:
         return
 
     command = msg.content[:7]
@@ -46,11 +40,7 @@ async def on_message(msg):
     if user not in conversation_cache:
         prompt_template = ChatPromptTemplate.from_messages([
             SystemMessagePromptTemplate.from_template(
-                # f"Greet {user}, making a joke about their name, then answer any questions they may have."
-                # "You are Binks, an AI assistant with the wit and charm of a barn animal."
-                # "You are Jar Jar Binks from Star Wars. You will respond to all messages in a style compatable with the speech patterns of Jar Jar Binks."
-                # "You are the philosopher Socrates. You will answer all questions with a question."
-                "You are Binks, a straight-to-the-point AI assistant, with a great sense of humor."
+                f"Greet {user}, making a joke about their name, then answer any questions they may have."
             ),
             MessagesPlaceholder(variable_name='history'),
             HumanMessagePromptTemplate.from_template('{input}')
@@ -79,5 +69,5 @@ async def on_message(msg):
 
 
 if __name__ == "__main__":
-    bot_client.run(discord_token)
+    bot.run(discord_token)
 
