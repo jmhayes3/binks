@@ -2,7 +2,7 @@
 
 ## Quickstart
 
-### Create Discord Bot
+Create Discord Bot:
 
 1. [Create a Discord bot](https://discord.com/developers/applications)
     - Under Application » Bot
@@ -22,11 +22,16 @@
         2. Right click on a channel you want to use, and click Copy Channel ID
     - You can edit the system message the bot uses, or disable it entirely
 
-### Start LLM backend
+Start LLM backend:
 
-  $ ollama pull llama2
-  $ ollama serve
+```sh
+ollama pull llama2
+ollama serve
+```
 
-### Run
+Run:
 
-  $ python binks.py
+```sh
+python binks.py
+```
+
