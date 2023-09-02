@@ -1,73 +1,78 @@
 import os
+import logging
+import random
+
 import discord
 
+from discord.ext import commands
 from dotenv import load_dotenv
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferWindowMemory
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-    MessagesPlaceholder
-)
+from langchain.prompts import PromptTemplate
+from langchain.llms import Ollama
+from langchain.chains import LLMChain
 
+from utils import choose, make_chain
 
-# Load env vars from .env file in project directory.
 load_dotenv()
 
-discord_token = os.getenv('DISCORD_TOKEN')
-openai_token = os.getenv('OPENAI_API_KEY')
+intents = discord.Intents.default()
+intents.members = True
+intents.message_content = True
+intents.presences = False
+intents.typing = False
 
-bot = discord.Client(intents=discord.Intents.all())
+bot = commands.Bot(command_prefix="/", intents=intents)
 
-conversation_cache = {}
+CHAIN_CACHE = {}
 
 
 @bot.event
-async def on_message(msg):
-    # Don't respond to self or we'll end up in an infinite loop.
-    if msg.author == bot.user:
-        return
+async def on_ready():
+    start_message = f"Logged in as {bot.user} (ID: {bot.user.id})"
+    print(start_message)
+    print("-" * len(start_message))
 
-    command = msg.content[:7]
-    if not command.lower() == "/binks ":
-        return
 
-    message = msg.content[7:]
+@bot.command(name="choose")
+async def _choose(ctx, *choices: str):
+    """Choose between multiple choices."""
 
-    user = msg.author.name
-    if user not in conversation_cache:
-        prompt_template = ChatPromptTemplate.from_messages([
-            SystemMessagePromptTemplate.from_template(
-                f"Greet {user}, making a joke about their name, then answer any questions they may have."
-            ),
-            MessagesPlaceholder(variable_name='history'),
-            HumanMessagePromptTemplate.from_template('{input}')
-        ])
+    chosen = await choose(choices)
+    await ctx.send(chosen)
 
-        llm = ChatOpenAI(
-            openai_api_key=openai_token,
-            temperature=0.9
-        )
-        memory = ConversationBufferWindowMemory(
-            llm=llm,
-            return_messages=True
-        )
-        chain = ConversationChain(
-            llm=llm,
-            prompt=prompt_template,
-            memory=memory,
-            verbose=True
-        )
-        conversation_cache[user] = chain
 
-    conversation = conversation_cache[user]
-    response = await conversation.arun(input=message)
+@bot.command()
+async def query(ctx, query):
+    """Execute query."""
 
-    await msg.channel.send(response)
+    llm = Ollama(model="llama2")
+    response = llm(query)
+
+    await ctx.send(response)
+
+
+@bot.command()
+async def chat(ctx, msg):
+    """Execute query, keeping track of chat history."""
+
+    user = ctx.author
+    if user not in CHAIN_CACHE:
+        CHAIN_CACHE[user] = make_chain(user)
+
+    chain = CHAIN_CACHE[user]
+    response = chain.run(msg)
+
+    await ctx.send(response)
+
+
+@bot.command()
+async def summarize(ctx, k=3):
+    """Summarize last `k` messages in channel."""
+
+    response = str(k)
+    await ctx.send(response)
 
 
 if __name__ == "__main__":
-    bot.run(discord_token)
+    DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
+    bot.run(DISCORD_TOKEN, log_level=logging.DEBUG)
