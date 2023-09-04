@@ -1,18 +1,15 @@
 import os
-import logging
-import random
 
 import discord
 
 from discord.ext import commands
-from dotenv import load_dotenv
+
 from langchain.prompts import PromptTemplate
 from langchain.llms import Ollama
 from langchain.chains import LLMChain
 
-from utils import choose, make_chain
+from utils import make_chain
 
-load_dotenv()
 
 intents = discord.Intents.default()
 intents.members = True
@@ -32,24 +29,6 @@ async def on_ready():
     print("-" * len(start_message))
 
 
-@bot.command(name="choose")
-async def _choose(ctx, *choices: str):
-    """Choose between multiple choices."""
-
-    chosen = await choose(choices)
-    await ctx.send(chosen)
-
-
-@bot.command()
-async def query(ctx, query):
-    """Execute query."""
-
-    llm = Ollama(model="llama2")
-    response = llm(query)
-
-    await ctx.send(response)
-
-
 @bot.command()
 async def chat(ctx, msg):
     """Execute query, keeping track of chat history."""
@@ -64,15 +43,10 @@ async def chat(ctx, msg):
     await ctx.send(response)
 
 
-@bot.command()
-async def summarize(ctx, k=3):
-    """Summarize last `k` messages in channel."""
-
-    response = str(k)
-    await ctx.send(response)
-
-
 if __name__ == "__main__":
+    from dotenv import load_dotenv
+    load_dotenv()
+
     DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
-    bot.run(DISCORD_TOKEN, log_level=logging.DEBUG)
+    bot.run(DISCORD_TOKEN)
