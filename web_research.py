@@ -1,6 +1,3 @@
-import os
-import logging
-
 from langchain.llms import Ollama
 from langchain.vectorstores import Chroma
 from langchain.embeddings import GPT4AllEmbeddings
@@ -10,12 +7,6 @@ from langchain.retrievers.web_research import WebResearchRetriever
 from langchain.chains import RetrievalQAWithSourcesChain
 from langchain.utilities import GoogleSearchAPIWrapper
 
-
-logging.basicConfig()
-logging.getLogger("langchain.retrievers.web_research").setLevel(logging.INFO)
-
-os.environ["GOOGLE_CSE_ID"] = "424e6196a076845fb"
-os.environ["GOOGLE_API_KEY"] = "AIzaSyBbnJhgblDoKO9OMiE2hcy2ZsIbIoGvuWQ"
 
 search = GoogleSearchAPIWrapper()
 
@@ -35,11 +26,8 @@ qa_chain = RetrievalQAWithSourcesChain.from_chain_type(
     return_source_documents=True
 )
 
+user_input = "What is Task Decomposition in LLM Powered Autonomous Agents?"
 
-if __name__ == "__main__":
-    user_input = "What is Task Decomposition in LLM Powered Autonomous Agents?"
-
-    result = qa_chain({"question": user_input})
-
-    print(result["answer"])
-    print(result["source_documents"])
+result = qa_chain({"question": user_input})
+print(result["answer"])
+print(result["source_documents"])

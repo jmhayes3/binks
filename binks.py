@@ -25,8 +25,21 @@ CHAIN_CACHE = {}
 @bot.event
 async def on_ready():
     start_message = f"Logged in as {bot.user} (ID: {bot.user.id})"
-    print(start_message)
-    print("-" * len(start_message))
+    print(f"{start_message}\n{('-' * len(start_message))}")
+
+    # try:
+    #     after_date = None
+    #     if self.days:
+    #         after_date = dt.datetime.utcnow() - dt.timedelta(days=self.days)
+
+    #     channel = bot.get_channel(int(self.channel))
+    #     async for msg in channel.history(after=after_date):  # type: ignore
+    #         messages.append(msg)
+
+    #     await bot.close()
+    # except Exception as e:
+    #     logger.error(f"Error fetching messages: {e}")
+    #     await bot.close()
 
 
 @bot.command()
